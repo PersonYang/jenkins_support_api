@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.base.dao.ApinCityDao" >
+  <resultMap id="result" type="com.apin.base.bean.ApinCity" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="city_name" property="cityName" jdbcType="VARCHAR" />
+    <result column="en_name" property="enName" jdbcType="VARCHAR" />
+    <result column="city_code" property="cityCode" jdbcType="VARCHAR" />
+    <result column="full_pinyin" property="fullPinyin" jdbcType="VARCHAR" />
+    <result column="pinyin_headers" property="pinyinHeaders" jdbcType="VARCHAR" />
+    <result column="pinyin_first" property="pinyinFirst" jdbcType="VARCHAR" />
+    <result column="img_url" property="imgUrl" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="zone_code" property="zoneCode" jdbcType="VARCHAR" />
+    <result column="abroad" property="abroad" jdbcType="INTEGER" />
+    <result column="busi_type" property="busiType" jdbcType="INTEGER" />
+    <result column="pinyou_hot_tag" property="pinyouHotTag" jdbcType="INTEGER" />
+    <result column="pinji_hot_tag" property="pinjiHotTag" jdbcType="INTEGER" />
+    <result column="city_version" property="cityVersion" jdbcType="INTEGER" />
+    <result column="hot_version" property="hotVersion" jdbcType="INTEGER" />
+    <result column="longitude" property="longitude" jdbcType="DOUBLE" />
+	<result column="latitude" property="latitude" jdbcType="DOUBLE" />
+  </resultMap>
+  
+  
+  
+</mapper>

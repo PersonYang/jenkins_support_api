@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.modules.routes.dao.ApinRouteDistributeMerchantInfoDao" >
+  <resultMap id="result" type="com.apin.modules.routes.bean.ApinRouteDistributeMerchantInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="merchant_id" property="merchantId" jdbcType="INTEGER" />
+    <result column="route_no" property="routeNo" jdbcType="BIGINT" />
+    <result column="expire_time" property="expireTime" jdbcType="TIMESTAMP" />
+    <result column="handle_status" property="handleStatus" jdbcType="TINYINT" />
+    <result column="is_matched" property="isMatched" jdbcType="TINYINT" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="supplier_id" property="supplierId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="base_info" >
+    id, merchant_id, route_no, expire_time, handle_status, update_time, create_time,supplier_id
+  </sql>
+  
+  <select id="findOneBySearchMap" resultMap="result">
+  	 SELECT
+  	   *
+  	  FROM
+  	  apin_route_distribute_merchant_info
+  	   WHERE
+  	      1=1
+  	   <if test="searchMap.userId != null and searchMap.userId !=''">
+  	   	  AND supplier_id = #{searchMap.userId}
+  	   </if>
+  	    <if test="searchMap.routeNo != null and searchMap.routeNo !=''">
+  	   	  AND route_no = #{searchMap.routeNo}
+  	   </if>
+  	   LIMIT 0,1
+  </select>
+  
+  
+  <select id="getOneByRouteNo" resultMap="result">
+  	SELECT 
+  	   *
+  	FROM
+  	   apin_route_distribute_merchant_info
+  	 WHERE
+  	    route_no = #{routeNo}
+  	    LIMIT 0,1
+  </select>
+  
+  
+  <select id="getListByMap" resultMap="result">
+  	SELECT
+  	 <include refid="base_info"/>
+  	 FROM
+  	  apin_route_distribute_merchant_info
+  	 WHERE
+  	  1=1
+  	  <include refid="search_condition"/>
+  </select>
+  <select id="getMerchantId" resultType="Integer">
+  	SELECT 
+  		merchant_id
+  	FROM
+  	  apin_route_distribute_merchant_info
+  	 WHERE
+  	   1=1
+  	  <include refid="search_condition"/>
+  </select>
+  
+  <!-- 分页前缀 -->
+	<sql id="PagePrefix">
+        <![CDATA[
+		 select route_no from(
+	  ]]>
+	</sql>
+	<!-- 分页后缀 -->
+	<sql id="PagePostfix">
+        <![CDATA[
+	 	) a limit #{start}, #{size}
+	  ]]>
+	</sql>
+  <!-- 老版本查询routeNo    供应商查询出 自己匹配到的行程信息-->
+  <select id="getRouteNoListByMap" resultType="Integer">
+  	SELECT
+  	 route_no
+  	 FROM
+  	  apin_route_distribute_merchant_info
+  	 WHERE
+  	  1=1
+  	  <include refid="search_condition"/>
+  </select>
+  <!-- 新版本查询routeNo  分页查询 -->
+   <select id="getRouteNoListByPageMap" resultType="Long">
+   	<include refid="PagePrefix"/>
+  	SELECT
+  	  route_no
+  	 FROM
+  	  apin_route_distribute_merchant_info
+  	 WHERE
+  	  1=1
+  	  <include refid="search_condition"/>
+  	  <include refid="PagePostfix"/>
+  </select>
+  
+  
+  
+  <select id="getRouteNoCountByMap" resultType="Long">
+  	SELECT
+  	   COUNT(1)
+  	 FROM
+  	  apin_route_distribute_merchant_info
+  	 WHERE
+  	  1=1
+  	  <include refid="search_condition"/>
+  </select>
+  
+  <sql id="search_condition">
+  	<if test="searchMap.routeNo != null and searchMap.routeNo != ''">
+  		AND route_no = #{searchMap.routeNo}
+  	</if>
+  	<if test="searchMap.userId != null and searchMap.userId != ''">
+  		AND supplier_id = #{searchMap.userId}
+  	</if>
+  	<if test="searchMap.handStatus != null and searchMap.handStatus != ''">
+  		AND handle_status = #{searchMap.handStatus}
+  	</if>
+  	<if test="searchMap.isMatched != null and searchMap.isMatched != ''">
+  		AND is_matched = #{searchMap.isMatched}
+  	</if>
+  </sql>
+ 
+  <insert id="insertNotNull" parameterType="com.apin.modules.routes.bean.ApinRouteDistributeMerchantInfo" >
+    insert into apin_route_distribute_merchant_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="merchantId != null" >
+        merchant_id,
+      </if>
+      <if test="routeNo != null" >
+        route_no,
+      </if>
+      <if test="expireTime != null" >
+        expire_time,
+      </if>
+      <if test="handleStatus != null" >
+        handle_status,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="merchantId != null" >
+        #{merchantId,jdbcType=INTEGER},
+      </if>
+      <if test="routeNo != null" >
+        #{routeNo,jdbcType=BIGINT},
+      </if>
+      <if test="expireTime != null" >
+        #{expireTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="handleStatus != null" >
+        #{handleStatus,jdbcType=TINYINT},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateNotNull" parameterType="com.apin.modules.routes.bean.ApinRouteDistributeMerchantInfo" >
+    update apin_route_distribute_merchant_info
+    <set >
+      <if test="merchantId != null" >
+        merchant_id = #{merchantId,jdbcType=INTEGER},
+      </if>
+      <if test="routeNo != null" >
+        route_no = #{routeNo,jdbcType=BIGINT},
+      </if>
+      <if test="expireTime != null" >
+        expire_time = #{expireTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="handleStatus != null" >
+        handle_status = #{handleStatus,jdbcType=TINYINT},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.base.dao.ApinAirCompDao" >
+  <resultMap id="result" type="com.apin.base.bean.ApinAirComp" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="iata_code" property="iataCode" jdbcType="VARCHAR" />
+    <result column="icao_code" property="icaoCode" jdbcType="VARCHAR" />
+    <result column="nation_code" property="nationCode" jdbcType="VARCHAR" />
+    <result column="logo_ico" property="logoIco" jdbcType="VARCHAR" />
+    <result column="PINYIN_FIRST" property="pinyinFirst" jdbcType="CHAR" />
+  </resultMap>
+  
+  <sql id="base_info" >
+    id, name, iata_code, icao_code, nation_code, logo_ico, PINYIN_FIRST
+  </sql>
+  
+ 
+
+  
+  <insert id="insertNotNull" parameterType="com.apin.base.bean.ApinAirComp" useGeneratedKeys="true" keyProperty="id">
+    insert into apin_air_comp
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="iataCode != null" >
+        iata_code,
+      </if>
+      <if test="icaoCode != null" >
+        icao_code,
+      </if>
+      <if test="nationCode != null" >
+        nation_code,
+      </if>
+      <if test="logoIco != null" >
+        logo_ico,
+      </if>
+      <if test="pinyinFirst != null" >
+        PINYIN_FIRST,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="iataCode != null" >
+        #{iataCode,jdbcType=VARCHAR},
+      </if>
+      <if test="icaoCode != null" >
+        #{icaoCode,jdbcType=VARCHAR},
+      </if>
+      <if test="nationCode != null" >
+        #{nationCode,jdbcType=VARCHAR},
+      </if>
+      <if test="logoIco != null" >
+        #{logoIco,jdbcType=VARCHAR},
+      </if>
+      <if test="pinyinFirst != null" >
+        #{pinyinFirst,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateNotNull" parameterType="com.apin.base.bean.ApinAirComp" >
+    update apin_air_comp
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="iataCode != null" >
+        iata_code = #{iataCode,jdbcType=VARCHAR},
+      </if>
+      <if test="icaoCode != null" >
+        icao_code = #{icaoCode,jdbcType=VARCHAR},
+      </if>
+      <if test="nationCode != null" >
+        nation_code = #{nationCode,jdbcType=VARCHAR},
+      </if>
+      <if test="logoIco != null" >
+        logo_ico = #{logoIco,jdbcType=VARCHAR},
+      </if>
+      <if test="pinyinFirst != null" >
+        PINYIN_FIRST = #{pinyinFirst,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.modules.users.dao.ApinAccountDao" >
+  <resultMap id="result" type="com.apin.modules.users.bean.ApinAccount" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="client_id" property="clientId" jdbcType="INTEGER" />
+    <result column="merchant_id" property="merchantId" jdbcType="INTEGER" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="account_name" property="accountName" jdbcType="VARCHAR" />
+    <result column="account_passwd" property="accountPasswd" jdbcType="VARCHAR" />
+    <result column="nick_name" property="nickName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="base_info" >
+    id, client_id, merchant_id, phone, account_name, account_passwd, nick_name, create_time
+  </sql>
+  
+  <select id="getMerchantByPhone" resultType="map">
+  	 SELECT
+  	   * 
+  	 FROM 
+  	    apin_merchant
+  	 WHERE
+  	      phone = #{phone}
+  </select>
+  
+  
+   <insert id="insertMerchantMap" parameterType="java.util.Map">  
+         insert ignore into apin_merchant   
+         <foreach collection="paramMap.keys" item="key" open="(" close=")" separator="," >  
+            ${key}  
+         </foreach>  
+         values   
+         <foreach collection="paramMap.keys"  item="key" open="(" close=")" separator=",">  
+            #{paramMap[${key}]}  
+         </foreach>  
+   </insert>  
+
+  
+  <select id="findById" resultMap="result">
+  	  SELECT
+  	    * 
+  	   FROM
+  	       apin_account
+  	    WHERE
+  	       id = #{userId}
+  </select>
+  <select id="findByIdclientId" resultMap="result">
+  	  SELECT
+  	    * 
+  	   FROM
+  	       apin_account
+  	    WHERE
+  	       client_id = #{clientId}
+  </select>
+  
+  <select id="findByPhone" resultMap="result">
+  	  SELECT
+  	    * 
+  	   FROM
+  	       apin_account
+  	    WHERE
+  	       phone = #{phone}
+  </select>
+  
+  <insert id="insertNotNull" parameterType="com.apin.modules.users.bean.ApinAccount" >
+    insert into apin_account
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="clientId != null" >
+        client_id,
+      </if>
+      <if test="merchantId != null" >
+        merchant_id,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="accountName != null" >
+        account_name,
+      </if>
+      <if test="accountPasswd != null" >
+        account_passwd,
+      </if>
+      <if test="nickName != null" >
+        nick_name,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="clientId != null" >
+        #{clientId,jdbcType=INTEGER},
+      </if>
+      <if test="merchantId != null" >
+        #{merchantId,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="accountName != null" >
+        #{accountName,jdbcType=VARCHAR},
+      </if>
+      <if test="accountPasswd != null" >
+        #{accountPasswd,jdbcType=VARCHAR},
+      </if>
+      <if test="nickName != null" >
+        #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateNotNull" parameterType="com.apin.modules.users.bean.ApinAccount" >
+    update apin_account
+    <set >
+      <if test="clientId != null" >
+        client_id = #{clientId,jdbcType=INTEGER},
+      </if>
+      <if test="merchantId != null" >
+        merchant_id = #{merchantId,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="accountName != null" >
+        account_name = #{accountName,jdbcType=VARCHAR},
+      </if>
+      <if test="accountPasswd != null" >
+        account_passwd = #{accountPasswd,jdbcType=VARCHAR},
+      </if>
+      <if test="nickName != null" >
+        nick_name = #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.modules.orders.dao.ApinOrderDao" >
+  <resultMap id="result" type="com.apin.modules.orders.bean.ApinOrder" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="order_no" property="orderNo" jdbcType="BIGINT" />
+    <result column="route_no" property="routeNo" jdbcType="BIGINT" />
+    <result column="journey_id" property="journeyId" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="merchant_id" property="merchantId" jdbcType="INTEGER" />
+    <result column="unit_price" property="unitPrice" jdbcType="DECIMAL" />
+    <result column="passenger_num" property="passengerNum" jdbcType="INTEGER" />
+    <result column="insurance_price" property="insurancePrice" jdbcType="DECIMAL" />
+    <result column="insurance_number" property="insuranceNumber" jdbcType="INTEGER" />
+    <result column="total_price" property="totalPrice" jdbcType="DECIMAL" />
+    <result column="actual_pay_cash" property="actualPayCash" jdbcType="DECIMAL" />
+    <result column="pay_model" property="payModel" jdbcType="INTEGER" />
+    <result column="currency" property="currency" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="status_by_app" property="statusByApp" jdbcType="TINYINT" />
+    <result column="pay_voucher" property="payVoucher" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="account" property="account" jdbcType="VARCHAR" />
+    <result column="pay_time" property="payTime" jdbcType="TIMESTAMP" />
+    <result column="payer" property="payer" jdbcType="VARCHAR" />
+    <result column="actual_passenger_num" property="actualPassengerNum" jdbcType="INTEGER" />
+    <result column="rest_price" property="restPrice" jdbcType="DECIMAL" />
+    <result column="price_id" property="priceId" jdbcType="INTEGER" />
+    <result column="rest_status_by_app" property="restStatusByApp" jdbcType="TINYINT" />
+    <result column="rest_pay_voucher" property="restPayVoucher" jdbcType="VARCHAR" />
+    <result column="rest_account" property="restAccount" jdbcType="VARCHAR" />
+    <result column="rest_payer" property="restPayer" jdbcType="VARCHAR" />
+    <result column="rest_pay_time" property="restPayTime" jdbcType="TIMESTAMP" />
+    <result column="rest_pay_model" property="restPayModel" jdbcType="INTEGER" />
+    <result column="travel_agency_id" property="travelAgencyId" jdbcType="VARCHAR" />
+    <result column="supplier_id" property="supplierId" jdbcType="VARCHAR" />
+    <result column="flag" property="flag" jdbcType="TINYINT" />
+  </resultMap>
+  <sql id="base_info" >
+    id, order_no, journey_id, user_id, merchant_id, unit_price, passenger_num, insurance_price, 
+    insurance_number, total_price, actual_pay_cash, pay_model, currency, status, status_by_app, 
+    pay_voucher, create_time, update_time, account, pay_time, payer, actual_passenger_num, 
+    rest_price, price_id, rest_status_by_app, rest_pay_voucher, rest_account, rest_payer, 
+    rest_pay_time,travel_agency_id,supplier_id,route_no,flag
+  </sql>
+  
+  <!-- 获取我的各种状态的订单数目 -->
+  <select id="getCountBySearchMapAndList" resultType="long">
+  		SELECT
+  		   COUNT(1)
+  		FROM 
+  		   apin_order
+  		WHERE
+  		   1=1
+  	  <!--  <if test="userIdList != null and userIdList.size()>0">
+		  and travel_agency_id in 
+	    	<foreach collection="userIdList" item="userId"
+				index="index" open="(" close=")" separator=",">
+				  #{userId}
+			</foreach>
+		</if> -->
+		<if test="searchMap.userId != null and searchMap.userId != ''">
+			and travel_agency_id = #{searchMap.userId}
+		</if>
+		<if test="searchMap.status != null and searchMap.status != '' and  searchMap.status == 1">
+			and status in (1,5)
+		</if>
+		<if test="searchMap.status != null and searchMap.status != '' and searchMap.status == 6">
+			and status in (6,7)
+		</if>
+		<if test="searchMap.status != null and searchMap.status != '' and searchMap.status == 2">
+			and status = 2
+		</if>
+		<if test="searchMap.status != null and searchMap.status != '' and searchMap.status == 3">
+			and status = 3
+		</if>
+  </select>
+  
+  
+  <select id="getOrderByPriceList" resultMap="result">
+  		SELECT 
+  		  *
+  		FROM 
+  		  apin_order
+  		WHERE
+  		  1=1
+  		 <if test="priceIdList != null and priceIdList.size()>0">
+		  and price_id in 
+	    	<foreach collection="priceIdList" item="priceId"
+				index="index" open="(" close=")" separator=",">
+				#{priceId}
+			</foreach>
+		</if>
+		limit 0,1
+  </select>
+  
+    <sql id="PagePrefix">
+        <![CDATA[
+		 select * from(
+	  ]]>
+    </sql>
+    <sql id="PagePostfix">
+        <if test="page.sortField!=null and page.sortField!='' and page.sortOrder!=null and page.sortOrder!=''" >
+            order by ${page.sortField} ${page.sortOrder}
+        </if>
+        <![CDATA[
+	 	) a limit #{page.startPageIndex,jdbcType=DECIMAL}, #{page.pageSize,jdbcType=DECIMAL}
+	  ]]>
+    </sql>
+  
+  
+  
+  <select id="getCountBySearchMap" resultType="long">
+  	 SELECT
+  	   COUNT(1)
+  	 FROM 
+  	   apin_order
+  	 WHERE
+  	   1=1
+  	   <include refid="search_condition"/>
+  </select>
+  
+  <select id="getListBySearchMap" resultMap="result">
+  	  <include refid="PagePrefix"/>
+  	SELECT
+  	  *
+  	FROM 
+  	   apin_order
+  	WHERE
+  	    1=1
+  	<include refid="search_condition"/>
+    <include refid="PagePostfix"/>
+  </select>
+
+	<sql id="search_condition">
+		<if test="searchMap.userId != null and searchMap.userId != ''">
+			AND supplier_id = #{searchMap.userId}
+		</if>
+		<if test="searchMap.status != null and searchMap.status != '' and searchMap.status == 1 ">
+	  	 	AND STATUS = 6 
+	  	 </if>
+		<if test="searchMap.status != null and searchMap.status != '' and searchMap.status == 2 ">
+	  	 	AND STATUS IN (2,3)
+	  	 </if>
+		<if test="searchMap.status != null and searchMap.status != '' and searchMap.status == 3 ">
+	  	 	AND STATUS = 4
+	  	 </if>
+		<if test="searchMap.status != null and searchMap.status != '' and searchMap.status == 4 ">
+	  	 	AND STATUS = 0
+	  	 </if>
+		<if test="searchMap.status != null and searchMap.status != '' and searchMap.status == 5 ">
+	  	 	AND STATUS in (0,2,3,4,6)
+	  	 </if>
+		<if test="searchMap.orderNo != null and searchMap.orderNo != '' ">
+			AND order_no like CONCAT('%',CONCAT(#{searchMap.orderNo},'%')) 
+		</if>
+		<if test="searchMap.routeNo != null and searchMap.routeNo != '' ">
+			AND route_no like CONCAT('%',CONCAT(#{searchMap.routeNo},'%'))
+		</if>
+		<if test="searchMap.dateStart != null and searchMap.dateStart != ''">
+	  	   <![CDATA[
+			AND create_time >= CONCAT(#{searchMap.dateStart},' 00:00')
+		    ]]>
+		</if>
+		<if test="searchMap.dateEnd!= null and searchMap.dateEnd != ''">
+	  	   <![CDATA[
+		      AND create_time  <= CONCAT(#{searchMap.dateEnd},' 23:59:00')
+		    ]]>
+		</if>
+	</sql>
+  
+  <insert id="insertNotNull" parameterType="com.apin.modules.orders.bean.ApinOrder" >
+    insert into apin_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderNo != null" >
+        order_no,
+      </if>
+      <if test="journeyId != null" >
+        journey_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="merchantId != null" >
+        merchant_id,
+      </if>
+      <if test="unitPrice != null" >
+        unit_price,
+      </if>
+      <if test="passengerNum != null" >
+        passenger_num,
+      </if>
+      <if test="insurancePrice != null" >
+        insurance_price,
+      </if>
+      <if test="insuranceNumber != null" >
+        insurance_number,
+      </if>
+      <if test="totalPrice != null" >
+        total_price,
+      </if>
+      <if test="actualPayCash != null" >
+        actual_pay_cash,
+      </if>
+      <if test="payModel != null" >
+        pay_model,
+      </if>
+      <if test="currency != null" >
+        currency,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="statusByApp != null" >
+        status_by_app,
+      </if>
+      <if test="payVoucher != null" >
+        pay_voucher,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="account != null" >
+        account,
+      </if>
+      <if test="payTime != null" >
+        pay_time,
+      </if>
+      <if test="payer != null" >
+        payer,
+      </if>
+      <if test="actualPassengerNum != null" >
+        actual_passenger_num,
+      </if>
+      <if test="restPrice != null" >
+        rest_price,
+      </if>
+      <if test="priceId != null" >
+        price_id,
+      </if>
+      <if test="restStatusByApp != null" >
+        rest_status_by_app,
+      </if>
+      <if test="restPayVoucher != null" >
+        rest_pay_voucher,
+      </if>
+      <if test="restAccount != null" >
+        rest_account,
+      </if>
+      <if test="restPayer != null" >
+        rest_payer,
+      </if>
+      <if test="restPayTime != null" >
+        rest_pay_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="orderNo != null" >
+        #{orderNo,jdbcType=BIGINT},
+      </if>
+      <if test="journeyId != null" >
+        #{journeyId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="merchantId != null" >
+        #{merchantId,jdbcType=INTEGER},
+      </if>
+      <if test="unitPrice != null" >
+        #{unitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="passengerNum != null" >
+        #{passengerNum,jdbcType=INTEGER},
+      </if>
+      <if test="insurancePrice != null" >
+        #{insurancePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="insuranceNumber != null" >
+        #{insuranceNumber,jdbcType=INTEGER},
+      </if>
+      <if test="totalPrice != null" >
+        #{totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="actualPayCash != null" >
+        #{actualPayCash,jdbcType=DECIMAL},
+      </if>
+      <if test="payModel != null" >
+        #{payModel,jdbcType=INTEGER},
+      </if>
+      <if test="currency != null" >
+        #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="statusByApp != null" >
+        #{statusByApp,jdbcType=TINYINT},
+      </if>
+      <if test="payVoucher != null" >
+        #{payVoucher,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="account != null" >
+        #{account,jdbcType=VARCHAR},
+      </if>
+      <if test="payTime != null" >
+        #{payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payer != null" >
+        #{payer,jdbcType=VARCHAR},
+      </if>
+      <if test="actualPassengerNum != null" >
+        #{actualPassengerNum,jdbcType=INTEGER},
+      </if>
+      <if test="restPrice != null" >
+        #{restPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="priceId != null" >
+        #{priceId,jdbcType=INTEGER},
+      </if>
+      <if test="restStatusByApp != null" >
+        #{restStatusByApp,jdbcType=TINYINT},
+      </if>
+      <if test="restPayVoucher != null" >
+        #{restPayVoucher,jdbcType=VARCHAR},
+      </if>
+      <if test="restAccount != null" >
+        #{restAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="restPayer != null" >
+        #{restPayer,jdbcType=VARCHAR},
+      </if>
+      <if test="restPayTime != null" >
+        #{restPayTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>	
+  
+  <update id="updateNotNull" parameterType="com.apin.modules.orders.bean.ApinOrder" >
+    update apin_order
+    <set >
+      <if test="orderNo != null" >
+        order_no = #{orderNo,jdbcType=BIGINT},
+      </if>
+      <if test="journeyId != null" >
+        journey_id = #{journeyId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="merchantId != null" >
+        merchant_id = #{merchantId,jdbcType=INTEGER},
+      </if>
+      <if test="unitPrice != null" >
+        unit_price = #{unitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="passengerNum != null" >
+        passenger_num = #{passengerNum,jdbcType=INTEGER},
+      </if>
+      <if test="insurancePrice != null" >
+        insurance_price = #{insurancePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="insuranceNumber != null" >
+        insurance_number = #{insuranceNumber,jdbcType=INTEGER},
+      </if>
+      <if test="totalPrice != null" >
+        total_price = #{totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="actualPayCash != null" >
+        actual_pay_cash = #{actualPayCash,jdbcType=DECIMAL},
+      </if>
+      <if test="payModel != null" >
+        pay_model = #{payModel,jdbcType=INTEGER},
+      </if>
+      <if test="currency != null" >
+        currency = #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="statusByApp != null" >
+        status_by_app = #{statusByApp,jdbcType=TINYINT},
+      </if>
+      <if test="payVoucher != null" >
+        pay_voucher = #{payVoucher,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="account != null" >
+        account = #{account,jdbcType=VARCHAR},
+      </if>
+      <if test="payTime != null" >
+        pay_time = #{payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payer != null" >
+        payer = #{payer,jdbcType=VARCHAR},
+      </if>
+      <if test="actualPassengerNum != null" >
+        actual_passenger_num = #{actualPassengerNum,jdbcType=INTEGER},
+      </if>
+      <if test="restPrice != null" >
+        rest_price = #{restPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="priceId != null" >
+        price_id = #{priceId,jdbcType=INTEGER},
+      </if>
+      <if test="restStatusByApp != null" >
+        rest_status_by_app = #{restStatusByApp,jdbcType=TINYINT},
+      </if>
+      <if test="restPayVoucher != null" >
+        rest_pay_voucher = #{restPayVoucher,jdbcType=VARCHAR},
+      </if>
+      <if test="restAccount != null" >
+        rest_account = #{restAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="restPayer != null" >
+        rest_payer = #{restPayer,jdbcType=VARCHAR},
+      </if>
+      <if test="restPayTime != null" >
+        rest_pay_time = #{restPayTime,jdbcType=TIMESTAMP},
+      </if>
+        <if test="restPayModel != null" >
+        rest_pay_model = #{restPayModel,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.modules.message.dao.ApinMessageDao" >
+  <resultMap id="result" type="com.apin.modules.message.bean.ApinMessage" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="message_type" property="messageType" jdbcType="TINYINT" />
+    <result column="has_read" property="hasRead" jdbcType="TINYINT" />
+    <result column="has_delete" property="hasDelete" jdbcType="TINYINT" />
+    <result column="is_merchant" property="isMerchant" jdbcType="TINYINT" />
+    <result column="account_id" property="accountId" jdbcType="VARCHAR" />
+    <result column="message_detail" property="messageDetail" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  
+  
+  
+    <update id="updateNotNull" >
+    update apin_message
+    <set >
+      <if test="paramMap.hasRead != null" >
+         has_read = 1,
+      </if>
+      <if test="paramMap.hasDelete != null" >
+         has_delete = 1,
+      </if>
+    </set>
+    where 1=1
+      <if test="messIdList != null and messIdList.size()>0">
+		  and id in 
+	    	<foreach collection="messIdList" item="messId"
+				index="index" open="(" close=")" separator=",">
+				  #{messId}
+			</foreach>
+		</if> 
+  </update>
+  
+  <select id="getListByUserId" resultMap="result">
+  	SELECT
+  	   *
+  	 FROM
+  	   apin_message
+  	WHERE
+  	   1=1 and has_read = 0 and has_delete =0 and account_id = #{userId}
+  	   order by create_time desc limit 0,4
+  </select>
+  
+   <select id="getCountBySearchMap" resultType="long">
+  	 SELECT
+  	   COUNT(1)
+  	 FROM 
+  	   apin_message
+  	 WHERE
+  	   1=1
+  	   <include refid="search_condition"/>
+  </select>
+  
+  <select id="getListBySearchMap" resultMap="result">
+  	  <include refid="PagePrefix"/>
+  	SELECT
+  	  *
+  	FROM 
+  	   apin_message
+  	WHERE
+  	    1=1
+  	<include refid="search_condition"/>
+    <include refid="PagePostfix"/>
+  </select>
+  
+   <sql id="search_condition">
+  	  <if test="searchMap.userId != null and searchMap.userId != '' ">
+  	  	 AND account_id = #{searchMap.userId}
+  	  </if>
+  	  <if test="searchMap.hasRead != null and searchMap.hasRead != '' ">
+  	  	 AND has_read = #{searchMap.hasRead}
+  	  </if>
+  	  <if test="searchMap.hasDelete != null and searchMap.hasDelete != ''">
+  	  	 AND has_delete =#{searchMap.hasDelete}
+  	  </if>
+  </sql>
+   
+   
+   
+   <sql id="PagePrefix">
+        <![CDATA[
+		 select * from(
+	  ]]>
+    </sql>
+    <sql id="PagePostfix">
+        <if test="page.sortField!=null and page.sortField!='' and page.sortOrder!=null and page.sortOrder!=''" >
+            order by ${page.sortField} ${page.sortOrder}
+        </if>
+        <![CDATA[
+	 	) a limit #{page.startPageIndex,jdbcType=DECIMAL}, #{page.pageSize,jdbcType=DECIMAL}
+	  ]]>
+    </sql>  
+  
+ 
+ 
+  
+  <insert id="insertNotNull" parameterType="com.apin.modules.message.bean.ApinMessage" >
+    insert into apin_message
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="messageType != null" >
+        message_type,
+      </if>
+      <if test="hasRead != null" >
+        has_read,
+      </if>
+      <if test="hasDelete != null" >
+        has_delete,
+      </if>
+      <if test="isMerchant != null" >
+        is_merchant,
+      </if>
+      <if test="accountId != null" >
+        account_id,
+      </if>
+      <if test="messageDetail != null" >
+        message_detail,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="messageType != null" >
+        #{messageType,jdbcType=TINYINT},
+      </if>
+      <if test="hasRead != null" >
+        #{hasRead,jdbcType=TINYINT},
+      </if>
+      <if test="hasDelete != null" >
+        #{hasDelete,jdbcType=TINYINT},
+      </if>
+      <if test="isMerchant != null" >
+        #{isMerchant,jdbcType=TINYINT},
+      </if>
+      <if test="accountId != null" >
+        #{accountId,jdbcType=VARCHAR},
+      </if>
+      <if test="messageDetail != null" >
+        #{messageDetail,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>

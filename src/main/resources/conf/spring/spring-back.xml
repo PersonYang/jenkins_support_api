@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:p="http://www.springframework.org/schema/p"
+             xmlns:mvc="http://www.springframework.org/schema/mvc"
+             xmlns:context="http://www.springframework.org/schema/context"
+             xmlns:util="http://www.springframework.org/schema/util"
+             xmlns:websocket="http://www.springframework.org/schema/websocket"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+
+
+	<mvc:annotation-driven />
+    <context:component-scan base-package="com.apin.modules.*.controller" />
+    <beans:bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"
+          p:messageConverters-ref="messageConverters"/>
+    <util:list id="messageConverters">
+        <beans:bean class="org.springframework.http.converter.BufferedImageHttpMessageConverter"/>
+        <beans:bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter"/>
+        <beans:bean class="org.springframework.http.converter.StringHttpMessageConverter"/>
+        <beans:bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+    </util:list>
+
+    <!-- 开发环境 -->
+    <!-- <context:property-placeholder location="classpath:/conf/db/config-dev.properties"/>   -->  
+	<!-- 生产环境 -->
+	  <context:property-placeholder location="classpath:/conf/db/config-pro.properties"/>  
+	
+    <beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <beans:property name="prefix" value="/WEB-INF/back/"/>
+        <beans:property name="suffix" value=".jsp"/>
+    </beans:bean>
+
+    <beans:bean id="multipartResolver"
+                class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <beans:property name="maxUploadSize">
+            <beans:value>104857600</beans:value>
+        </beans:property>
+        <beans:property name="maxInMemorySize">
+            <beans:value>4096</beans:value>
+        </beans:property>
+        <beans:property name="defaultEncoding">
+            <beans:value>UTF-8</beans:value>
+        </beans:property>
+    </beans:bean>
+
+
+    <beans:bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <beans:property name="exceptionMappings">
+            <beans:props>
+                <beans:prop key="net.sudaibang.biz.exception.GenericException">error</beans:prop>
+                <beans:prop key="java.lang.RuntimeException">error</beans:prop>
+                <!-- for shiro no auth error page -->
+                <beans:prop key="org.apache.shiro.authz.UnauthorizedException">noAuth</beans:prop>
+            </beans:props>
+        </beans:property>
+    </beans:bean>
+
+
+    <context:component-scan base-package="com.apin" scoped-proxy="targetClass" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    
+    
+   
+   <mvc:interceptors>
+    	<beans:bean class="com.apin.common.interceptor.LoginInterceptor"></beans:bean>
+    	<mvc:interceptor>  
+	        <mvc:mapping path="/api/web/support/*/*"/>  
+	        <mvc:mapping path="/api/web/support/*/*/*"/>  
+	        <beans:bean class="com.apin.common.interceptor.LoginInterceptor"></beans:bean>
+	    </mvc:interceptor> 
+    </mvc:interceptors>  
+  
+    
+    
+</beans:beans>

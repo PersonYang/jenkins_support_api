@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.modules.routes.dao.ApinRouteDetailInfoDao" >
+  <resultMap id="result" type="com.apin.modules.routes.bean.ApinRouteDetailInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="parent_id" property="parentId" jdbcType="INTEGER" />
+    <result column="trip_number" property="tripNumber" jdbcType="TINYINT" />
+    <result column="route_no" property="routeNo" jdbcType="BIGINT" />
+    <result column="depart_place_code" property="departPlaceCode" jdbcType="CHAR" />
+    <result column="depart_place" property="departPlace" jdbcType="VARCHAR" />
+    <result column="dest_place_code" property="destPlaceCode" jdbcType="CHAR" />
+    <result column="dest_place" property="destPlace" jdbcType="VARCHAR" />
+    <result column="depart_date" property="departDate" jdbcType="DATE" />
+  </resultMap>
+  
+  <sql id="base_info" >
+    id, parent_id, trip_number, route_no, depart_place_code, depart_place, dest_place_code, 
+    dest_place, depart_date
+  </sql>
+  <select id="findBySearchMap" resultMap="result">
+  	SELECT
+  	   *
+  	 FROM
+  	   apin_route_detail_info
+  	 WHERE
+  	   1=1
+  	   <if test="searchMap.routeNo !=null and searchMap.routeNo != ''">
+  	   	 AND route_no = #{searchMap.routeNo}
+  	   </if>
+  </select>
+  
+  
+  <insert id="insertNotNull" parameterType="com.apin.modules.routes.bean.ApinRouteDetailInfo" >
+    insert into apin_route_detail_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="parentId != null" >
+        parent_id,
+      </if>
+      <if test="tripNumber != null" >
+        trip_number,
+      </if>
+      <if test="routeNo != null" >
+        route_no,
+      </if>
+      <if test="departPlaceCode != null" >
+        depart_place_code,
+      </if>
+      <if test="departPlace != null" >
+        depart_place,
+      </if>
+      <if test="destPlaceCode != null" >
+        dest_place_code,
+      </if>
+      <if test="destPlace != null" >
+        dest_place,
+      </if>
+      <if test="departDate != null" >
+        depart_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="parentId != null" >
+        #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="tripNumber != null" >
+        #{tripNumber,jdbcType=TINYINT},
+      </if>
+      <if test="routeNo != null" >
+        #{routeNo,jdbcType=BIGINT},
+      </if>
+      <if test="departPlaceCode != null" >
+        #{departPlaceCode,jdbcType=CHAR},
+      </if>
+      <if test="departPlace != null" >
+        #{departPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="destPlaceCode != null" >
+        #{destPlaceCode,jdbcType=CHAR},
+      </if>
+      <if test="destPlace != null" >
+        #{destPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="departDate != null" >
+        #{departDate,jdbcType=DATE},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateNotNull" parameterType="com.apin.modules.routes.bean.ApinRouteDetailInfo" >
+    update apin_route_detail_info
+    <set >
+      <if test="parentId != null" >
+        parent_id = #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="tripNumber != null" >
+        trip_number = #{tripNumber,jdbcType=TINYINT},
+      </if>
+      <if test="routeNo != null" >
+        route_no = #{routeNo,jdbcType=BIGINT},
+      </if>
+      <if test="departPlaceCode != null" >
+        depart_place_code = #{departPlaceCode,jdbcType=CHAR},
+      </if>
+      <if test="departPlace != null" >
+        depart_place = #{departPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="destPlaceCode != null" >
+        dest_place_code = #{destPlaceCode,jdbcType=CHAR},
+      </if>
+      <if test="destPlace != null" >
+        dest_place = #{destPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="departDate != null" >
+        depart_date = #{departDate,jdbcType=DATE},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

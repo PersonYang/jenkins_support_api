@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.modules.flights.dao.ApinMerchantFlightInfoDao" >
+  <resultMap id="result" type="com.apin.modules.flights.bean.ApinMerchantFlightInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="journey_id" property="journeyId" jdbcType="BIGINT" />
+    <result column="flight_type" property="flightType" jdbcType="TINYINT" />
+    <result column="merchant_id" property="merchantId" jdbcType="INTEGER" />
+    <result column="current_ticket_num" property="currentTicketNum" jdbcType="INTEGER" />
+    <result column="currency" property="currency" jdbcType="VARCHAR" />
+    <result column="total_price_inctax" property="totalPriceInctax" jdbcType="DECIMAL" />
+    <result column="route_type" property="routeType" jdbcType="TINYINT" />
+    <result column="is_shelves" property="isShelves" jdbcType="TINYINT" />
+    <result column="valid_time" property="validTime" jdbcType="TIMESTAMP" />
+    <result column="is_audit" property="isAudit" jdbcType="TINYINT" />
+    <result column="has_insurance" property="hasInsurance" jdbcType="TINYINT" />
+    <result column="insurance" property="insurance" jdbcType="DECIMAL" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="is_fare_ticket" property="isFareTicket" jdbcType="TINYINT" />
+    <result column="version" property="version" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="supplier_id" property="supplierId" jdbcType="VARCHAR" />
+    <result column="is_special_ticket" property="isSpecialTicket" jdbcType="TINYINT" />
+    <result column="baggage_rules" property="baggageRules" jdbcType="VARCHAR" />
+    <result column="group_id" property="groupId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="base_info" >
+    id, journey_id, flight_type, merchant_id, current_ticket_num, currency, total_price_inctax, 
+    route_type, is_shelves, valid_time, is_audit, has_insurance, insurance, update_time, 
+    is_fare_ticket,version, create_time,supplier_id,is_special_ticket,baggage_rules,group_id
+  </sql>
+  
+  <update id="updateByMap"  parameterType="Map">
+     update apin_merchant_flight_info
+    <set >
+      <if test="updateMap.currentTicketNum != null" >
+        current_ticket_num = #{updateMap.currentTicketNum,jdbcType=INTEGER},
+      </if>
+      <if test="updateMap.totalPriceInctax != null" >
+        total_price_inctax = #{updateMap.totalPriceInctax,jdbcType=DECIMAL},
+      </if>
+      <if test="updateMap.isShelves != null" >
+        is_shelves = #{updateMap.isShelves,jdbcType=TINYINT},
+      </if>
+      <if test="updateMap.isAudit != null" >
+        is_audit = #{updateMap.isAudit,jdbcType=TINYINT},
+      </if>
+      <if test="updateMap.isFareTicket != null" >
+        is_fare_ticket = #{updateMap.isFareTicket,jdbcType=TINYINT},
+      </if>
+      <if test="updateMap.version != null" >
+        version = #{updateMap.version,jdbcType=INTEGER}+1,
+      </if>
+    </set>
+    where group_id = #{updateMap.groupId,jdbcType=INTEGER} and version = #{updateMap.version,jdbcType=INTEGER}
+  </update>
+  <select id="getOneByGroupId" resultMap="result">
+  	SELECT
+  	  *
+  	FROM
+  	   apin_merchant_flight_info
+  	 where
+  	   group_id =#{groupId}
+  	  limit 0,1
+  </select>
+  
+  
+  
+   <sql id="PagePrefix">
+        <![CDATA[
+		 select * from(
+	  ]]>
+    </sql>
+    <sql id="PagePostfix">
+        <if test="page.sortField!=null and page.sortField!='' and page.sortOrder!=null and page.sortOrder!=''" >
+            order by a.${page.sortField} ${page.sortOrder}
+        </if>
+        <![CDATA[
+	 	) a limit #{page.startPageIndex,jdbcType=DECIMAL}, #{page.pageSize,jdbcType=DECIMAL}
+	  ]]>
+    </sql>
+  
+  <select id="getCountBySearchMap" resultType="long">
+      SELECT 
+        COUNT(1) 
+      FROM 
+        (
+        	SELECT
+  	   		COUNT(1)
+		  	FROM 
+		  	  apin_merchant_flight_info a ,
+		  	  apin_merchant_flight_detail_info b
+		  	WHERE
+		  	  1=1 and b.parent_id=0 and a.journey_id=b.journey_id
+		  	  <if test="searchMap.merchantId != null and searchMap.merchantId != ''">
+		  	  	AND a.merchant_id =#{searchMap.merchantId}
+		  	  </if>
+		  	  <if test="searchMap.userId != null and searchMap.userId != ''">
+		  	  	AND a.supplier_id =#{searchMap.userId}
+		  	  </if>
+		  	  <if test="searchMap.isShelves != null and searchMap.isShelves != ''">
+		  	  	AND a.is_shelves =#{searchMap.isShelves}
+		  	  </if>
+		  	  <if test="searchMap.isFareTicket != null and searchMap.isFareTicket != ''">
+		  	  	AND a.is_fare_ticket =#{searchMap.isFareTicket}
+		  	  </if>
+		  	  <if test="searchMap.routeType != null and searchMap.routeType != ''">
+		  	  	AND a.route_type =#{searchMap.routeType}
+		  	  </if>
+		  	  <if test="searchMap.airComp != null and searchMap.airComp != ''">
+		  	  	AND b.air_comp  LIKE CONCAT('%',CONCAT(#{searchMap.airComp},'%')) 
+		  	  </if>
+		  	  <if test="searchMap.departPlace != null and searchMap.departPlace != ''">
+		  	  	AND b.depart_place  LIKE CONCAT('%',CONCAT(#{searchMap.departPlace},'%')) 
+		  	  </if>
+		  	  <if test="searchMap.destPlace != null and searchMap.destPlace != ''">
+		  	  	AND b.dest_place  LIKE CONCAT('%',CONCAT(#{searchMap.destPlace},'%')) 
+		  	  </if>
+		  	  group by a.group_id     
+        ) c
+  </select>
+  
+  
+  <select id="getMapListBySearchMap" resultType="map">
+  	<include refid="PagePrefix"/>
+  	SELECT
+  	   a.group_id as groupId,
+  	   a.journey_id as journeyId,
+  	   a.route_type as routeType,
+  	   a.current_ticket_num as ticketNum,
+  	   a.total_price_inctax as totalPrice,
+  	   b.air_comp as airComp,
+  	   b.flight_no as flightNo,
+  	   min(b.depart_date)  as departDateStart,
+  	   max(b.depart_date)  as departDateEnd,
+  	   b.depart_time as departTime,
+  	   b.depart_place as departPlace,
+  	   b.depart_airport as departAirport,
+  	   b.arrive_date as arriveDate,
+  	   b.arrive_time as arriveTime,
+  	   b.dest_place as destPlace,
+	   b.arrive_airport as arriveAirport,
+	   b.has_turn as hasTurn,
+	   a.is_special_ticket as isSpecialTicket,
+	   a.baggage_rules as baggageRules
+  	FROM 
+  	  apin_merchant_flight_info a ,
+  	  apin_merchant_flight_detail_info b
+  	WHERE
+  	    1=1 and b.parent_id=0 and a.journey_id=b.journey_id
+  	 <if test="searchMap.merchantId != null and searchMap.merchantId != ''">
+  	  	AND a.merchant_id =#{searchMap.merchantId}
+  	  </if>
+  	  <if test="searchMap.userId != null and searchMap.userId != ''">
+  	  	AND a.supplier_id =#{searchMap.userId}
+  	  </if>
+  	  <if test="searchMap.isShelves != null and searchMap.isShelves != ''">
+  	  	AND a.is_shelves =#{searchMap.isShelves}
+  	  </if>
+  	  <if test="searchMap.isFareTicket != null and searchMap.isFareTicket != ''">
+  	  	AND a.is_fare_ticket =#{searchMap.isFareTicket}
+  	  </if>
+  	  <if test="searchMap.routeType != null and searchMap.routeType != ''">
+  	  	AND a.route_type =#{searchMap.routeType}
+  	  </if>
+  	  <if test="searchMap.airComp != null and searchMap.airComp != ''">
+  	  	AND b.air_comp  LIKE CONCAT('%',CONCAT(#{searchMap.airComp},'%')) 
+  	  </if>
+  	  <if test="searchMap.departPlace != null and searchMap.departPlace != ''">
+  	  	AND b.depart_place  LIKE CONCAT('%',CONCAT(#{searchMap.departPlace},'%')) 
+  	  </if>
+  	  <if test="searchMap.destPlace != null and searchMap.destPlace != ''">
+  	  	AND b.dest_place  LIKE CONCAT('%',CONCAT(#{searchMap.destPlace},'%')) 
+  	  </if>
+  	   group by group_id
+    <include refid="PagePostfix"/>
+  </select>
+  
+  <!-- 查询条件 -->
+  <sql id="search_condition">
+  	  <if test="searchMap.merchantId != null and searchMap.merchantId != ''">
+  	  	AND a.merchant_id =#{searchMap.merchantId}
+  	  </if>
+  	  <if test="searchMap.userId != null and searchMap.userId != ''">
+  	  	AND a.supplier_id =#{searchMap.userId}
+  	  </if>
+  	  <if test="searchMap.isShelves != null and searchMap.isShelves != ''">
+  	  	AND a.is_shelves =#{searchMap.isShelves}
+  	  </if>
+  	  <if test="searchMap.isFareTicket != null and searchMap.isFareTicket != ''">
+  	  	AND a.is_fare_ticket =#{searchMap.isFareTicket}
+  	  </if>
+  	  <if test="searchMap.routeType != null and searchMap.routeType != ''">
+  	  	AND a.route_type =#{searchMap.routeType}
+  	  </if>
+  	  <if test="searchMap.airComp != null and searchMap.airComp != ''">
+  	  	AND b.air_comp  LIKE CONCAT('%',CONCAT(#{searchMap.airComp},'%')) 
+  	  </if>
+  	  <if test="searchMap.departPlace != null and searchMap.departPlace != ''">
+  	  	AND b.depart_place  LIKE CONCAT('%',CONCAT(#{searchMap.departPlace},'%')) 
+  	  </if>
+  	  <if test="searchMap.destPlace != null and searchMap.destPlace != ''">
+  	  	AND b.dest_place  LIKE CONCAT('%',CONCAT(#{searchMap.destPlace},'%')) 
+  	  </if>
+  </sql>
+  
+  
+  
+  <insert id="insertNotNull" parameterType="com.apin.modules.flights.bean.ApinMerchantFlightInfo" useGeneratedKeys="true" keyProperty="id">
+    insert into apin_merchant_flight_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="journeyId != null" >
+        journey_id,
+      </if>
+      <if test="flightType != null" >
+        flight_type,
+      </if>
+      <if test="merchantId != null" >
+        merchant_id,
+      </if>
+      <if test="currentTicketNum != null" >
+        current_ticket_num,
+      </if>
+      <if test="currency != null" >
+        currency,
+      </if>
+      <if test="totalPriceInctax != null" >
+        total_price_inctax,
+      </if>
+      <if test="routeType != null" >
+        route_type,
+      </if>
+      <if test="isShelves != null" >
+        is_shelves,
+      </if>
+      <if test="validTime != null" >
+        valid_time,
+      </if>
+      <if test="isAudit != null" >
+        is_audit,
+      </if>
+      <if test="hasInsurance != null" >
+        has_insurance,
+      </if>
+      <if test="insurance != null" >
+        insurance,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="isFareTicket != null" >
+        is_fare_ticket,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="supplierId != null" >
+        supplier_id,
+      </if>
+      <if test="isSpecialTicket != null" >
+        is_special_ticket,
+      </if>
+      <if test="baggageRules != null" >
+        baggage_rules,
+      </if>
+      <if test="groupId != null" >
+        group_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="journeyId != null" >
+        #{journeyId,jdbcType=BIGINT},
+      </if>
+      <if test="flightType != null" >
+        #{flightType,jdbcType=TINYINT},
+      </if>
+      <if test="merchantId != null" >
+        #{merchantId,jdbcType=INTEGER},
+      </if>
+      <if test="currentTicketNum != null" >
+        #{currentTicketNum,jdbcType=INTEGER},
+      </if>
+      <if test="currency != null" >
+        #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="totalPriceInctax != null" >
+        #{totalPriceInctax,jdbcType=DECIMAL},
+      </if>
+      <if test="routeType != null" >
+        #{routeType,jdbcType=TINYINT},
+      </if>
+      <if test="isShelves != null" >
+        #{isShelves,jdbcType=TINYINT},
+      </if>
+      <if test="validTime != null" >
+        #{validTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isAudit != null" >
+        #{isAudit,jdbcType=TINYINT},
+      </if>
+      <if test="hasInsurance != null" >
+        #{hasInsurance,jdbcType=TINYINT},
+      </if>
+      <if test="insurance != null" >
+        #{insurance,jdbcType=DECIMAL},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isFareTicket != null" >
+        #{isFareTicket,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="supplierId != null" >
+        #{supplierId,jdbcType=VARCHAR},
+      </if>
+      <if test="isSpecialTicket != null" >
+        #{isSpecialTicket,jdbcType=TINYINT},
+      </if>
+      <if test="baggageRules != null" >
+        #{baggageRules,jdbcType=VARCHAR},
+      </if>
+      <if test="groupId != null" >
+        #{groupId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateNotNull" parameterType="com.apin.modules.flights.bean.ApinMerchantFlightInfo" >
+    update apin_merchant_flight_info
+    <set >
+      <if test="journeyId != null" >
+        journey_id = #{journeyId,jdbcType=BIGINT},
+      </if>
+      <if test="flightType != null" >
+        flight_type = #{flightType,jdbcType=TINYINT},
+      </if>
+      <if test="merchantId != null" >
+        merchant_id = #{merchantId,jdbcType=INTEGER},
+      </if>
+      <if test="currentTicketNum != null" >
+        current_ticket_num = #{currentTicketNum,jdbcType=INTEGER},
+      </if>
+      <if test="currency != null" >
+        currency = #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="totalPriceInctax != null" >
+        total_price_inctax = #{totalPriceInctax,jdbcType=DECIMAL},
+      </if>
+      <if test="routeType != null" >
+        route_type = #{routeType,jdbcType=TINYINT},
+      </if>
+      <if test="isShelves != null" >
+        is_shelves = #{isShelves,jdbcType=TINYINT},
+      </if>
+      <if test="validTime != null" >
+        valid_time = #{validTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isAudit != null" >
+        is_audit = #{isAudit,jdbcType=TINYINT},
+      </if>
+      <if test="hasInsurance != null" >
+        has_insurance = #{hasInsurance,jdbcType=TINYINT},
+      </if>
+      <if test="insurance != null" >
+        insurance = #{insurance,jdbcType=DECIMAL},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isFareTicket != null" >
+        is_fare_ticket = #{isFareTicket,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="version != null" >
+        version = #{version,jdbcType=INTEGER}+1,
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER} and version = #{version,jdbcType=INTEGER}
+  </update>
+</mapper>

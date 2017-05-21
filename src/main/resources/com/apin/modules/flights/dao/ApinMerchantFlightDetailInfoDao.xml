@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.modules.flights.dao.ApinMerchantFlightDetailInfoDao" >
+  <resultMap id="result" type="com.apin.modules.flights.bean.ApinMerchantFlightDetailInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="parent_id" property="parentId" jdbcType="INTEGER" />
+    <result column="trip_number" property="tripNumber" jdbcType="TINYINT" />
+    <result column="journey_id" property="journeyId" jdbcType="BIGINT" />
+    <result column="air_comp" property="airComp" jdbcType="VARCHAR" />
+    <result column="flight_no" property="flightNo" jdbcType="VARCHAR" />
+    <result column="depart_place_code" property="departPlaceCode" jdbcType="VARCHAR" />
+    <result column="depart_place" property="departPlace" jdbcType="VARCHAR" />
+    <result column="dest_place_code" property="destPlaceCode" jdbcType="VARCHAR" />
+    <result column="dest_place" property="destPlace" jdbcType="VARCHAR" />
+    <result column="depart_airport" property="departAirport" jdbcType="VARCHAR" />
+    <result column="arrive_airport" property="arriveAirport" jdbcType="VARCHAR" />
+    <result column="depart_date" property="departDate" jdbcType="DATE" />
+    <result column="arrive_date" property="arriveDate" jdbcType="DATE" />
+    <result column="depart_time" property="departTime" jdbcType="VARCHAR" />
+    <result column="arrive_time" property="arriveTime" jdbcType="VARCHAR" />
+    <result column="has_turn" property="hasTurn" jdbcType="TINYINT" />
+    <result column="cabin_name" property="cabinName" jdbcType="VARCHAR" />
+    <result column="cabin_type" property="cabinType" jdbcType="TINYINT" />
+    <result column="plane_model" property="planeModel" jdbcType="VARCHAR" />
+    <result column="flying_time" property="flyingTime" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="base_info" >
+    id, parent_id, trip_number, journey_id, air_comp, flight_no, depart_place_code, depart_place, 
+    dest_place_code, dest_place, depart_airport, arrive_airport, depart_date, arrive_date, 
+    depart_time, arrive_time, has_turn, cabin_name, cabin_type, plane_model, flying_time
+  </sql>
+  <sql id="union_base_info" >
+    a.id, a.parent_id, a.trip_number, a.journey_id, a.air_comp, a.flight_no, a.depart_place_code, a.depart_place, 
+    a.dest_place_code, a.dest_place, a.depart_airport, a.arrive_airport, a.depart_date, a.arrive_date, 
+    a.depart_time, a.arrive_time, a.has_turn, a.cabin_name, a.cabin_type, a.plane_model, a.flying_time
+  </sql>
+  
+  
+  
+  <select id="getUnionDepartDate" resultType="map">
+  	SELECT
+  	  trip_number,
+  	  depart_date
+  	FROM 
+  	  apin_merchant_flight_detail_info
+  WHERE
+     journey_id = #{journeyId} ORDER BY ID ASC
+  </select>
+    
+  <select id="getBackDepartDate" resultType="map">
+  	SELECT
+  	   a.group_id as groupId,
+  	   min(b.depart_date)  as backDepartDateStart,
+  	   max(b.depart_date)  as backDepartDateEnd
+  	FROM 
+  	  apin_merchant_flight_info a ,
+  	  apin_merchant_flight_detail_info b
+  	WHERE
+  	      1=1 AND b.parent_id != 0 AND a.journey_id=b.journey_id 
+  	      AND a.group_id = #{groupId}  
+  </select>
+  
+  <select id="getHeadDetailInfo" resultType="map">
+  	 SELECT
+  	   a.group_id AS groupId,
+  	   a.journey_id AS journeyId,
+  	   a.route_type AS routeType,
+  	   a.current_ticket_num AS ticketNum,
+  	   a.total_price_inctax AS totalPrice,
+  	   b.air_comp AS airComp,
+  	   b.flight_no AS flightNo,
+  	   MIN(b.depart_date)  AS departDateStart,
+  	   MAX(b.depart_date)  AS departDateEnd,
+  	   (SELECT
+  	   MIN(d.depart_date)  
+  			FROM 
+  	 	 		apin_merchant_flight_info c ,
+  	  			apin_merchant_flight_detail_info d
+  			WHERE
+  	      1=1 AND d.parent_id != 0 AND c.journey_id=d.journey_id 
+  	      AND c.group_id = #{groupId} ) AS backDepartDateStart,
+  	      (SELECT
+            MAX(d.depart_date)
+			  	FROM 
+			  	  apin_merchant_flight_info c ,
+			  	  apin_merchant_flight_detail_info d
+			  	WHERE
+  	              1=1 AND d.parent_id != 0 AND c.journey_id=d.journey_id 
+  	               AND c.group_id = #{groupId} ) AS backDepartDateEnd,
+  	   b.depart_time AS departTime,
+  	   b.depart_place AS departPlace,
+  	   b.depart_airport AS departAirport,
+  	   b.arrive_date AS arriveDate,
+  	   b.arrive_time AS arriveTime,
+  	   b.dest_place AS destPlace,
+	   b.arrive_airport AS arriveAirport,
+	   b.has_turn AS hasTurn,
+	   a.is_special_ticket AS isSpecialTicket,
+	   a.baggage_rules AS baggageRules
+  	FROM 
+  	  apin_merchant_flight_info a ,
+  	  apin_merchant_flight_detail_info b
+  	WHERE
+  	      1=1 AND b.parent_id=0 AND a.journey_id=b.journey_id 
+  	      AND a.group_id = #{groupId}  
+  </select>
+  
+  
+  
+    <select id="getFlightBySearchMap" resultMap="result">
+	  	SELECT
+	  	   <include refid="base_info"/>
+	  	FROM 
+	  	  apin_merchant_flight_detail_info
+	  	WHERE
+	  	  1=1
+	  	  <if test="searchMap.journeyId != null and searchMap.journeyId !=''">
+	  	  	AND  journey_id = #{searchMap.journeyId}
+	  	  </if>
+  </select>
+  
+   <select id="getOneFlightBySearchMap" resultMap="result">
+	  	SELECT
+	  	   <include refid="base_info"/>
+	  	FROM 
+	  	  apin_merchant_flight_detail_info
+	  	WHERE
+	  	  1=1
+	  	  <if test="searchMap.journeyId != null and searchMap.journeyId !=''">
+	  	  	AND  journey_id = #{searchMap.journeyId}
+	  	  </if>
+	  	 order by id asc limit 0,1 
+  </select>
+  
+    <select id="newGetOfferedFlight" resultMap="result">
+	  	SELECT
+	  	   <include refid="base_info"/>
+	  	FROM 
+	  	  apin_merchant_flight_detail_info
+	  	WHERE
+	  	  1=1
+	  	 <if test="joumryIdList != null and joumryIdList.size()>0">
+			 and journey_id in <foreach collection="joumryIdList" item="journeyId"
+									index="index" open="(" close=")" separator=",">
+									#{journeyId}
+								</foreach>
+			</if>
+		<if test="searchMap.parentId != null and searchMap.id != ''">
+				and parent_id = #{searchMap.parentId}		
+		</if>
+  </select>
+  
+  
+  <insert id="insertNotNull" parameterType="com.apin.modules.flights.bean.ApinMerchantFlightDetailInfo" useGeneratedKeys="true" keyProperty="id">
+    insert into apin_merchant_flight_detail_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="parentId != null" >
+        parent_id,
+      </if>
+      <if test="tripNumber != null" >
+        trip_number,
+      </if>
+      <if test="journeyId != null" >
+        journey_id,
+      </if>
+      <if test="airComp != null" >
+        air_comp,
+      </if>
+      <if test="flightNo != null" >
+        flight_no,
+      </if>
+      <if test="departPlaceCode != null" >
+        depart_place_code,
+      </if>
+      <if test="departPlace != null" >
+        depart_place,
+      </if>
+      <if test="destPlaceCode != null" >
+        dest_place_code,
+      </if>
+      <if test="destPlace != null" >
+        dest_place,
+      </if>
+      <if test="departAirport != null" >
+        depart_airport,
+      </if>
+      <if test="arriveAirport != null" >
+        arrive_airport,
+      </if>
+      <if test="departDate != null" >
+        depart_date,
+      </if>
+      <if test="arriveDate != null" >
+        arrive_date,
+      </if>
+      <if test="departTime != null" >
+        depart_time,
+      </if>
+      <if test="arriveTime != null" >
+        arrive_time,
+      </if>
+      <if test="hasTurn != null" >
+        has_turn,
+      </if>
+      <if test="cabinName != null" >
+        cabin_name,
+      </if>
+      <if test="cabinType != null" >
+        cabin_type,
+      </if>
+      <if test="planeModel != null" >
+        plane_model,
+      </if>
+      <if test="flyingTime != null" >
+        flying_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="parentId != null" >
+        #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="tripNumber != null" >
+        #{tripNumber,jdbcType=TINYINT},
+      </if>
+      <if test="journeyId != null" >
+        #{journeyId,jdbcType=BIGINT},
+      </if>
+      <if test="airComp != null" >
+        #{airComp,jdbcType=VARCHAR},
+      </if>
+      <if test="flightNo != null" >
+        #{flightNo,jdbcType=VARCHAR},
+      </if>
+      <if test="departPlaceCode != null" >
+        #{departPlaceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="departPlace != null" >
+        #{departPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="destPlaceCode != null" >
+        #{destPlaceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="destPlace != null" >
+        #{destPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="departAirport != null" >
+        #{departAirport,jdbcType=VARCHAR},
+      </if>
+      <if test="arriveAirport != null" >
+        #{arriveAirport,jdbcType=VARCHAR},
+      </if>
+      <if test="departDate != null" >
+        #{departDate,jdbcType=DATE},
+      </if>
+      <if test="arriveDate != null" >
+        #{arriveDate,jdbcType=DATE},
+      </if>
+      <if test="departTime != null" >
+        #{departTime,jdbcType=VARCHAR},
+      </if>
+      <if test="arriveTime != null" >
+        #{arriveTime,jdbcType=VARCHAR},
+      </if>
+      <if test="hasTurn != null" >
+        #{hasTurn,jdbcType=TINYINT},
+      </if>
+      <if test="cabinName != null" >
+        #{cabinName,jdbcType=VARCHAR},
+      </if>
+      <if test="cabinType != null" >
+        #{cabinType,jdbcType=TINYINT},
+      </if>
+      <if test="planeModel != null" >
+        #{planeModel,jdbcType=VARCHAR},
+      </if>
+      <if test="flyingTime != null" >
+        #{flyingTime,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateNotNull" parameterType="com.apin.modules.flights.bean.ApinMerchantFlightDetailInfo" >
+    update apin_merchant_flight_detail_info
+    <set >
+      <if test="parentId != null" >
+        parent_id = #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="tripNumber != null" >
+        trip_number = #{tripNumber,jdbcType=TINYINT},
+      </if>
+      <if test="journeyId != null" >
+        journey_id = #{journeyId,jdbcType=BIGINT},
+      </if>
+      <if test="airComp != null" >
+        air_comp = #{airComp,jdbcType=VARCHAR},
+      </if>
+      <if test="flightNo != null" >
+        flight_no = #{flightNo,jdbcType=VARCHAR},
+      </if>
+      <if test="departPlaceCode != null" >
+        depart_place_code = #{departPlaceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="departPlace != null" >
+        depart_place = #{departPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="destPlaceCode != null" >
+        dest_place_code = #{destPlaceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="destPlace != null" >
+        dest_place = #{destPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="departAirport != null" >
+        depart_airport = #{departAirport,jdbcType=VARCHAR},
+      </if>
+      <if test="arriveAirport != null" >
+        arrive_airport = #{arriveAirport,jdbcType=VARCHAR},
+      </if>
+      <if test="departDate != null" >
+        depart_date = #{departDate,jdbcType=DATE},
+      </if>
+      <if test="arriveDate != null" >
+        arrive_date = #{arriveDate,jdbcType=DATE},
+      </if>
+      <if test="departTime != null" >
+        depart_time = #{departTime,jdbcType=VARCHAR},
+      </if>
+      <if test="arriveTime != null" >
+        arrive_time = #{arriveTime,jdbcType=VARCHAR},
+      </if>
+      <if test="hasTurn != null" >
+        has_turn = #{hasTurn,jdbcType=TINYINT},
+      </if>
+      <if test="cabinName != null" >
+        cabin_name = #{cabinName,jdbcType=VARCHAR},
+      </if>
+      <if test="cabinType != null" >
+        cabin_type = #{cabinType,jdbcType=TINYINT},
+      </if>
+      <if test="planeModel != null" >
+        plane_model = #{planeModel,jdbcType=VARCHAR},
+      </if>
+      <if test="flyingTime != null" >
+        flying_time = #{flyingTime,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

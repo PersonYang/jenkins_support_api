@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.modules.flights.dao.ApinJourneyIdSequenceDao" >
+  <resultMap id="result" type="com.apin.modules.flights.bean.ApinJourneyIdSequence" >
+    <id column="journey_id" property="journeyId" jdbcType="BIGINT" />
+  </resultMap>
+ 
+  <insert id="insertJourneyIdSequence" parameterType="com.apin.modules.flights.bean.ApinJourneyIdSequence" useGeneratedKeys="true" keyProperty="journeyId" flushCache="true">
+        insert into apin_journey_id_sequence (journey_id) values(0)
+    </insert>
+ 
+ 
+</mapper>

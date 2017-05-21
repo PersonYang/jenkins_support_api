@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.modules.routes.dao.ApinRouteDao" >
+  <resultMap id="result" type="com.apin.modules.routes.bean.ApinRoute" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="route_no" property="routeNo" jdbcType="BIGINT" />
+    <result column="route_status" property="routeStatus" jdbcType="TINYINT" />
+    <result column="user_mobile" property="userMobile" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="route_type" property="routeType" jdbcType="TINYINT" />
+    <result column="passenger_num" property="passengerNum" jdbcType="INTEGER" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="accept_id" property="acceptId" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="cancel_reason" property="cancelReason" jdbcType="VARCHAR" />
+    <result column="is_temporary" property="isTemporary" jdbcType="TINYINT" />
+    <result column="flag" property="flag" jdbcType="TINYINT" />
+    <result column="user_maintenancer_id" property="userMaintenancerId" jdbcType="VARCHAR" />
+    <result column="travel_agency_id" property="travelAgencyId" jdbcType="VARCHAR" />
+    <result column="supplier_id" property="supplierId" jdbcType="VARCHAR" />
+    <result column="application_id" property="applicationId" jdbcType="VARCHAR" />
+    <result column="channel_id" property="channelId" jdbcType="VARCHAR" />
+    <result column="adult_passenger" property="adultPassenger" jdbcType="INTEGER" />
+    <result column="child_passenger" property="childPassenger" jdbcType="INTEGER" />
+    <result column="route_days" property="routeDays" jdbcType="INTEGER" />
+    <result column="expire_time" property="expireTime" jdbcType="TIMESTAMP" />
+    <result column="show_no" property="showNo" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="base_info" >
+      id, route_no, route_status, user_mobile, user_id, route_type, passenger_num, description, 
+    accept_id, create_time, update_time, cancel_reason, is_temporary, flag, user_maintenancer_id, 
+    travel_agency_id, supplier_id, application_id, channel_id, adult_passenger, child_passenger, 
+    route_days, expire_time,show_no
+  </sql>
+  
+  <select id="getAllCountBySearchMap" resultType="long">
+  	 SELECT 
+  	   COUNT(1)
+  	 FROM 
+  	    APIN_ROUTE a
+  	 WHERE
+		1=1 and route_status != 0
+	 <include refid="search_condition" />
+  </select>
+  
+   <select id="getAllListBySearchMap" resultMap="result">
+    	<include refid="PagePrefix"/>
+    	SELECT
+    	   *
+    	 FROM 
+    	   apin_route a 
+    	 WHERE
+    	    1=1 and route_status != 0
+    	<include refid="search_condition"/>
+        <include refid="PagePostfix"/>
+    </select>
+  
+   <sql id="search_condition">
+	 <if test="searchMap.userId != null and searchMap.userId != '' ">
+  	 	and supplier_id =#{searchMap.userId}
+  	 </if>
+	 <if test="searchMap.routeNo != null and searchMap.routeNo != '' ">
+  	 	and route_no =#{searchMap.routeNo}
+  	 </if>
+	<if test="searchMap.dateStart != null and searchMap.dateStart != ''">
+  	   <![CDATA[
+		AND create_time >= CONCAT(#{searchMap.dateStart},' 00:00')
+	    ]]>
+  	 </if>
+  	<if test="searchMap.dateEnd!= null and searchMap.dateEnd != ''">
+  	   <![CDATA[
+	    AND create_time  <= CONCAT(#{searchMap.dateEnd},' 23:59:00')
+	  ]]>
+  	</if>
+  	 <if test="searchMap.orderStatus != null and searchMap.orderStatus != '' and searchMap.orderStatus == 1 ">
+  	 	and (route_status = 3 AND route_no = 
+  	 	      (SELECT route_no FROM apin_order WHERE route_no = a.route_no AND STATUS = 6 ))
+  	 </if>
+  	 <if test="searchMap.orderStatus != null and searchMap.orderStatus != '' and searchMap.orderStatus == 2 ">
+  	 	and (route_status = 3 AND route_no = (SELECT route_no FROM apin_order WHERE route_no = a.route_no AND STATUS in(2,3)))
+  	 </if>
+  	 <if test="searchMap.orderStatus != null and searchMap.orderStatus != '' and searchMap.orderStatus == 3 ">
+  	 	and (route_status = 3 AND route_no = (SELECT route_no FROM apin_order WHERE route_no = a.route_no AND STATUS = 4))
+  	 </if>
+  	 <!-- 取消 或 订单失效 -->
+  	 <if test="searchMap.isCancle != null and searchMap.isCancle != '' and searchMap.isCancle=='yes'">
+  	 	and (route_status = 4 OR (route_status = 3 AND route_no = (SELECT route_no FROM apin_order WHERE route_no = a.route_no AND STATUS =0)))
+  	 </if>
+  	 <if test="searchMap.isNotStatus != null and searchMap.isNotStatus !='' and searchMap.isNotStatus =='yes'">
+  	 	or (route_status = 3 AND route_no = (SELECT route_no FROM apin_order WHERE route_no = a.route_no AND STATUS not in(0,5,7)))
+  	 </if>
+  </sql>
+  
+  
+  <select id="getCountBySearchMap" resultType="long">
+  	 SELECT 
+  	   COUNT(1)
+  	 FROM 
+  	    APIN_ROUTE
+  	 WHERE
+			1=1
+	 <include refid="search_condition_handle" />
+  </select>
+  
+  <sql id="search_condition_handle">
+  	   <if test="searchMap.support_select != null and searchMap.support_select != '' ">
+  	 	and route_status in (1,2)
+  	  </if>
+  	  <!--<if test="searchMap.handStatus != null and searchMap.handStatus != '' and searchMap.handStatus ==1 ">
+  	 	and route_status =2
+  	  </if> -->
+  	  <if test="searchMap.routeNo != null and searchMap.routeNo != '' ">
+  	 	and route_no like CONCAT('%',CONCAT(#{searchMap.routeNo},'%'))
+  	  </if>
+  	  <if test="searchMap.dateStart != null and searchMap.dateStart != ''">
+	  	   <![CDATA[
+			AND create_time >= CONCAT(#{searchMap.dateStart},' 00:00')
+		    ]]>
+	  	 </if>
+	  	<if test="searchMap.dateEnd != null and searchMap.dateEnd != ''">
+	  	   <![CDATA[
+		     AND create_time  <= CONCAT(#{searchMap.dateEnd},' 23:59:00')
+		   ]]>
+	  	</if>
+  	  <if test="routeNoList != null and routeNoList.size()>0">
+		  and route_no in 
+	    	<foreach collection="routeNoList" item="routeNo"
+				index="index" open="(" close=")" separator=",">
+				#{routeNo}
+			</foreach>
+	   </if> 
+  </sql>
+  
+    <sql id="PagePrefix">
+        <![CDATA[
+		 select * from(
+	  ]]>
+    </sql>
+    <sql id="PagePostfix">
+        <if test="page.sortField!=null and page.sortField!='' and page.sortOrder!=null and page.sortOrder!=''" >
+            order by ${page.sortField} ${page.sortOrder}
+        </if>
+        <![CDATA[
+	 	) a limit #{page.startPageIndex,jdbcType=DECIMAL}, #{page.pageSize,jdbcType=DECIMAL}
+	  ]]>
+    </sql>
+    <!-- 旅行社端  等待处理的行程 -->
+    <select id="getListBySearchMap" resultMap="result">
+    	<include refid="PagePrefix"/>
+    	SELECT
+    	   <include refid="base_info"/>
+    	 FROM 
+    	   apin_route
+    	 WHERE
+    	    1=1
+    	<include refid="search_condition_handle"/>
+        <include refid="PagePostfix"/>
+    </select>
+    
+    
+ 
+  <insert id="insertNotNull" parameterType="com.apin.modules.routes.bean.ApinRoute" >
+    insert into apin_route
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="routeNo != null" >
+        route_no,
+      </if>
+      <if test="routeStatus != null" >
+        route_status,
+      </if>
+      <if test="userMobile != null" >
+        user_mobile,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="routeType != null" >
+        route_type,
+      </if>
+      <if test="passengerNum != null" >
+        passenger_num,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="acceptId != null" >
+        accept_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="routeNo != null" >
+        #{routeNo,jdbcType=BIGINT},
+      </if>
+      <if test="routeStatus != null" >
+        #{routeStatus,jdbcType=TINYINT},
+      </if>
+      <if test="userMobile != null" >
+        #{userMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="routeType != null" >
+        #{routeType,jdbcType=TINYINT},
+      </if>
+      <if test="passengerNum != null" >
+        #{passengerNum,jdbcType=INTEGER},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="acceptId != null" >
+        #{acceptId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateNotNull" parameterType="com.apin.modules.routes.bean.ApinRoute" >
+    update apin_route
+    <set >
+      <if test="routeNo != null" >
+        route_no = #{routeNo,jdbcType=BIGINT},
+      </if>
+      <if test="routeStatus != null" >
+        route_status = #{routeStatus,jdbcType=TINYINT},
+      </if>
+      <if test="userMobile != null" >
+        user_mobile = #{userMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="routeType != null" >
+        route_type = #{routeType,jdbcType=TINYINT},
+      </if>
+      <if test="passengerNum != null" >
+        passenger_num = #{passengerNum,jdbcType=INTEGER},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="acceptId != null" >
+        accept_id = #{acceptId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+</mapper>

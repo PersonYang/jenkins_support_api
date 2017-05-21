@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.apin.base.dao.DictAirportDAO">
+	<resultMap id="result" type="com.apin.base.bean.DictAirport" >
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="iata_code" property="iataCode" jdbcType="VARCHAR" />
+		<result column="icao_code" property="icaoCode" jdbcType="VARCHAR" />
+		<result column="airport_name" property="airportName" jdbcType="VARCHAR" />
+		<result column="city_name" property="cityName" jdbcType="VARCHAR" />
+		<result column="city_pinyin" property="cityPinyin" jdbcType="VARCHAR" />
+		<result column="city_pinyinheader" property="cityPinyinheader" jdbcType="VARCHAR" />
+		<result column="city_pinyinfirst" property="cityPinyinfirst" jdbcType="VARCHAR" />
+		<result column="zone_code" property="zoneCode" jdbcType="VARCHAR" />
+		<result column="abroad" property="abroad" jdbcType="TINYINT" />
+		<result column="longitude" property="longitude" jdbcType="DOUBLE" />
+		<result column="latitude" property="latitude" jdbcType="DOUBLE" />
+		<result column="city_code" property="cityCode" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="airport_pinyin" property="airportPinyin" jdbcType="VARCHAR" />
+		<result column="hot_city_tag" property="hotCityTag" jdbcType="VARCHAR" />
+		<result column="time_zone" property="timeZone" jdbcType="VARCHAR" />
+	</resultMap>
+</mapper>

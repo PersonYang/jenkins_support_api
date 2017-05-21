@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.modules.routes.dao.ApinMerchantRoutePriceInfoDao" >
+  <resultMap id="result" type="com.apin.modules.routes.bean.ApinMerchantRoutePriceInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="route_no" property="routeNo" jdbcType="BIGINT" />
+    <result column="merchant_id" property="merchantId" jdbcType="INTEGER" />
+    <result column="journey_id" property="journeyId" jdbcType="BIGINT" />
+    <result column="price" property="price" jdbcType="DECIMAL" />
+    <result column="ticket_rate" property="ticketRate" jdbcType="DECIMAL" />
+    <result column="deposit_ratio" property="depositRatio" jdbcType="DECIMAL" />
+    <result column="rest_last_pay_time" property="restLastPayTime" jdbcType="TIMESTAMP" />
+    <result column="valid_time" property="validTime" jdbcType="TIMESTAMP" />
+    <result column="supplier_id" property="supplierId" jdbcType="VARCHAR" />
+    <result column="has_chat" property="hasChat" jdbcType="TINYINT" />
+  </resultMap>
+  
+  <sql id="base_info" >
+    id, route_no, merchant_id, journey_id, price,ticket_rate,deposit_ratio,rest_last_pay_time,valid_time,supplier_id,has_chat
+  </sql>
+  
+  <select id="getOfferedFlightInfo"  resultType="map">
+  	   SELECT
+   		a.route_no AS routeNo,
+   		b.journey_id AS journeyId,
+   	    b.air_comp AS airComp, 
+   	    b.flight_no AS flightNo, 
+   		b.depart_date AS departDate, 
+   		b.depart_Time AS departTime, 
+   		b.depart_airport AS departAirport,
+   		b.arrive_date AS arriveDate,
+   		b.arrive_time AS arriveTime,
+   		b.arrive_airport AS arriveAirport,
+   		a.id AS priceId,
+   		a.has_chat as hasChat, 
+   		a.price AS price
+  	  FROM  
+  	     apin_merchant_flight_detail_info b LEFT JOIN 
+  	      apin_merchant_route_price_info a ON a.journey_id = b.journey_id 
+  	    WHERE
+  		  1=1
+          <if test="routeNo != null and routeNo != ''">
+          	  AND a.route_no =#{routeNo}
+          </if>
+          <if test="userId != null and userId != ''">
+          	  AND a.supplier_id =#{userId}
+          </if>
+  	<!--   SELECT
+   		a.route_no as routeNo,
+   		c.create_time as createTime,
+   		c.route_type as routeType, 
+   	    b.air_comp as airComp, 
+   	    b.flight_no as flightNo, 
+   		b.depart_date as departDate, 
+   		b.depart_Time as departTime, 
+   		b.depart_airport as departAirport,
+   		b.arrive_date as arriveDate,
+   		b.arrive_time as arriveTime,
+   		b.arrive_airport as arriveAirport,
+   		c.passenger_num as passengerNum,
+   		a.price as price
+  	  FROM  
+  	     apin_merchant_route_price_info a,
+  	     apin_merchant_flight_detail_info b,
+  	     apin_route c
+     WHERE
+          a.journey_id = b.journey_id AND a.route_no = c.route_no
+          AND  b.parent_id=0 
+          <if test="routeNo != null and routeNo != ''">
+          	  AND a.route_no =#{routeNo}
+          </if>
+          <if test="userId != null and userId != ''">
+          	  AND a.supplier_id =#{userId}
+          </if> -->
+  </select>
+  
+  <select id="getIdList" resultType="java.lang.Integer">
+  	SELECT
+  	   id
+  	 FROM
+  	   apin_merchant_route_price_info 
+  	 WHERE 
+  	  1=1
+  	  <include refid="search_condition"/>
+  </select>
+  
+  
+  
+  <select id="getListMap" resultMap="result">
+  	SELECT
+  	   <include refid="base_info"/>
+  	 FROM
+  	   apin_merchant_route_price_info 
+  	 WHERE 
+  	  1=1
+  	  <include refid="search_condition"/>
+  </select>
+  <select id="getRouteNoList" resultType="java.lang.Integer">
+  	SELECT
+  	   route_no
+  	 FROM
+  	   apin_merchant_route_price_info 
+  	 WHERE 
+  	  1=1
+  	  <include refid="search_condition"/>
+  </select>
+    <!-- 取出一个初见的航班 journey_id-->
+  <select id="getOneRoutePrice" resultMap="result">
+  	SELECT
+  	   *
+  	 FROM
+  	   apin_merchant_route_price_info 
+  	 WHERE 
+  	  1=1
+  	  <include refid="search_condition"/>
+  	  limit 0,1
+  </select>
+    <!-- 取出一个初见的航班 journey_id-->
+  <select id="getOneJoumryId" resultType="java.lang.Long">
+  	SELECT
+  	   journey_id
+  	 FROM
+  	   apin_merchant_route_price_info 
+  	 WHERE 
+  	  1=1
+  	  <include refid="search_condition"/>
+  	  limit 0,1
+  </select>
+  
+  <select id="getJoumryIdList" resultType="java.lang.Long">
+  	SELECT
+  	   journey_id
+  	 FROM
+  	   apin_merchant_route_price_info 
+  	 WHERE 
+  	  1=1
+  	  <include refid="search_condition"/>
+  </select>
+  
+  <sql id="search_condition">
+  	  <if test="searchMap.userId != null and searchMap.userId != ''">
+  	  	 AND supplier_id = #{searchMap.userId}
+  	  </if>
+  	  <if test="searchMap.routeNo != null and searchMap.routeNo != ''">
+  	  	 AND route_no = #{searchMap.routeNo}
+  	  </if>
+  	  <if test="searchMap.journeyId != null and searchMap.journeyId != ''">
+  	  	 AND journey_id = #{searchMap.journeyId}
+  	  </if>
+  </sql>
+  
+  
+  
+  <insert id="insertNotNull" parameterType="com.apin.modules.routes.bean.ApinMerchantRoutePriceInfo" >
+    insert into apin_merchant_route_price_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="routeNo != null" >
+        route_no,
+      </if>
+      <if test="merchantId != null" >
+        merchant_id,
+      </if>
+      <if test="journeyId != null" >
+        journey_id,
+      </if>
+      <if test="price != null" >
+        price,
+      </if>
+      <if test="ticketRate != null" >
+        ticket_rate,
+      </if>
+      <if test="depositRatio != null" >
+        deposit_ratio,
+      </if>
+      <if test="restLastPayTime != null" >
+        rest_last_pay_time,
+      </if>
+      <if test="validTime != null" >
+        valid_time,
+      </if>
+      <if test="supplierId != null" >
+        supplier_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="routeNo != null" >
+        #{routeNo,jdbcType=BIGINT},
+      </if>
+      <if test="merchantId != null" >
+        #{merchantId,jdbcType=INTEGER},
+      </if>
+      <if test="journeyId != null" >
+        #{journeyId,jdbcType=BIGINT},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="ticketRate != null" >
+        #{ticketRate,jdbcType=DECIMAL},
+      </if>
+      <if test="depositRatio != null" >
+        #{depositRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="restLastPayTime != null" >
+        #{restLastPayTime,jdbcType=DATE},
+      </if>
+      <if test="validTime != null" >
+        #{validTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="supplierId != null" >
+        #{supplier_id,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateNotNull" parameterType="com.apin.modules.routes.bean.ApinMerchantRoutePriceInfo" >
+    update apin_merchant_route_price_info
+    <set >
+      <if test="routeNo != null" >
+        route_no = #{routeNo,jdbcType=BIGINT},
+      </if>
+      <if test="merchantId != null" >
+        merchant_id = #{merchantId,jdbcType=INTEGER},
+      </if>
+      <if test="journeyId != null" >
+        journey_id = #{journeyId,jdbcType=BIGINT},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="ticketRate != null" >
+        ticket_rate = #{ticketRate,jdbcType=DECIMAL},
+      </if>
+      <if test="depositRatio != null" >
+        deposit_ratio = #{depositRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="restLastPayTime != null" >
+        rest_last_pay_time = #{price,jdbcType=DATE},
+      </if>
+      <if test="validTime != null" >
+        valid_time = #{validTime,jdbcType=TIMESTAMP},
+      </if>
+       <if test="supplierId != null" >
+        supplier_id = #{supplierId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

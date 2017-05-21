@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.apin.base.dao.AirLineFlightDao">
+  <resultMap id="result" type="com.apin.base.bean.AirLineFlight">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="air_line_id" jdbcType="INTEGER" property="airLineId" />
+    <result column="air_comp" jdbcType="VARCHAR" property="airComp" />
+    <result column="air_comp_code" jdbcType="CHAR" property="airCompCode" />
+    <result column="flight_no" jdbcType="VARCHAR" property="flightNo" />
+    <result column="dep_terminal" jdbcType="CHAR" property="depTerminal" />
+    <result column="arr_terminal" jdbcType="CHAR" property="arrTerminal" />
+    <result column="depart_time" jdbcType="VARCHAR" property="departTime" />
+    <result column="arrive_time" jdbcType="VARCHAR" property="arriveTime" />
+    <result column="on_time_rate" jdbcType="VARCHAR" property="onTimeRate" />
+    <result column="is_middle_stop" jdbcType="TINYINT" property="isMiddleStop" />
+    <result column="middle_city" jdbcType="VARCHAR" property="middleCity" />
+    <result column="middle_city_code" jdbcType="VARCHAR" property="middleCityCode" />
+    <result column="middle_airport" jdbcType="VARCHAR" property="middleAirport" />
+    <result column="middle_airport_code" jdbcType="CHAR" property="middleAirportCode" />
+    <result column="middle_arrive_time" jdbcType="VARCHAR" property="middleArriveTime" />
+    <result column="middle_depart_time" jdbcType="VARCHAR" property="middleDepartTime" />
+    <result column="boarding_gate" jdbcType="VARCHAR" property="boardingGate" />
+    <result column="duty_counter" jdbcType="VARCHAR" property="dutyCounter" />
+    <result column="luggage_gate" jdbcType="VARCHAR" property="luggageGate" />
+    <result column="depart_airport_code" jdbcType="VARCHAR" property="departAirportCode" />
+    <result column="depart_airport" jdbcType="VARCHAR" property="departAirport" />
+    <result column="depart_place" jdbcType="VARCHAR" property="departPlace" />
+    <result column="depart_place_code" jdbcType="VARCHAR" property="departPlaceCode" />
+    <result column="arrive_airport_code" jdbcType="VARCHAR" property="arriveAirportCode" />
+    <result column="arrive_airport" jdbcType="VARCHAR" property="arriveAirport" />
+    <result column="dest_place" jdbcType="VARCHAR" property="destPlace" />
+    <result column="dest_place_code" jdbcType="VARCHAR" property="destPlaceCode" />
+    <result column="fly_time" jdbcType="VARCHAR" property="flyTime" />
+  </resultMap>
+  <sql id="base_info">
+    id, air_line_id, air_comp, air_comp_code, flight_no, dep_terminal, arr_terminal, 
+    depart_time, arrive_time, on_time_rate, is_middle_stop, middle_city, middle_city_code, 
+    middle_airport, middle_airport_code, middle_arrive_time, middle_depart_time, boarding_gate, 
+    duty_counter, luggage_gate,departPlace,departPlaceCode,destPlace,destPlaceCode,flyTime
+  </sql>
+  
+  <select id="findByFlightNo" resultMap="result">
+  	SELECT
+  	  *
+  	FROM
+  	  air_line_flight
+  	WHERE
+  	   flight_no = #{flightNo} limit 0,1
+  </select>
+  <select id="findBySearchMap" resultMap="result">
+  	SELECT
+  	  *
+  	FROM
+  	  air_line_flight
+  	WHERE
+  	  1=1
+  	  <if test="searchMap.name != null and searchMap.name != ''">
+  	  	and flight_no = #{searchMap.name}
+  	  </if>
+  	  <if test="searchMap.departPlaceCode != null and searchMap.departPlaceCode != ''">
+  	  	and depart_place_code = #{searchMap.departPlaceCode}
+  	  </if>
+  	  <if test="searchMap.destPlaceCode != null and searchMap.destPlaceCode != ''">
+  	  	and dest_place_code = #{searchMap.destPlaceCode}
+  	  </if>
+  	   limit 0,1
+  </select>
+  
+  
+  <insert id="insertNotNull" parameterType="com.apin.base.bean.AirLineFlight" useGeneratedKeys="true" keyProperty="id">
+    insert into air_line_flight
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="airLineId != null">
+        air_line_id,
+      </if>
+      <if test="airComp != null">
+        air_comp,
+      </if>
+      <if test="airCompCode != null">
+        air_comp_code,
+      </if>
+      <if test="flightNo != null">
+        flight_no,
+      </if>
+      <if test="depTerminal != null">
+        dep_terminal,
+      </if>
+      <if test="arrTerminal != null">
+        arr_terminal,
+      </if>
+      <if test="departTime != null">
+        depart_time,
+      </if>
+      <if test="arriveTime != null">
+        arrive_time,
+      </if>
+      <if test="onTimeRate != null">
+        on_time_rate,
+      </if>
+      <if test="isMiddleStop != null">
+        is_middle_stop,
+      </if>
+      <if test="middleCity != null">
+        middle_city,
+      </if>
+      <if test="middleCityCode != null">
+        middle_city_code,
+      </if>
+      <if test="middleAirport != null">
+        middle_airport,
+      </if>
+      <if test="middleAirportCode != null">
+        middle_airport_code,
+      </if>
+      <if test="middleArriveTime != null">
+        middle_arrive_time,
+      </if>
+      <if test="middleDepartTime != null">
+        middle_depart_time,
+      </if>
+      <if test="boardingGate != null">
+        boarding_gate,
+      </if>
+      <if test="dutyCounter != null">
+        duty_counter,
+      </if>
+      <if test="luggageGate != null">
+        luggage_gate,
+      </if>
+       <if test="departAirport != null" >
+        depart_airport,
+      </if>
+      <if test="departAirportCode != null" >
+        depart_airport_code,
+      </if>
+      <if test="arriveAirport != null" >
+        arrive_airport,
+      </if>
+      <if test="arriveAirportCode != null" >
+        arrive_airport_code,
+      </if>
+      
+      <if test="departPlace != null" >
+        depart_place,
+      </if>
+      <if test="departPlaceCode != null" >
+        depart_place_code,
+      </if>
+      <if test="destPlace != null" >
+        dest_place,
+      </if>
+      <if test="destPlaceCode != null" >
+        dest_place_code,
+      </if>
+      <if test="flyTime != null" >
+        fly_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="airLineId != null">
+        #{airLineId,jdbcType=INTEGER},
+      </if>
+      <if test="airComp != null">
+        #{airComp,jdbcType=VARCHAR},
+      </if>
+      <if test="airCompCode != null">
+        #{airCompCode,jdbcType=CHAR},
+      </if>
+      <if test="flightNo != null">
+        #{flightNo,jdbcType=VARCHAR},
+      </if>
+      <if test="depTerminal != null">
+        #{depTerminal,jdbcType=CHAR},
+      </if>
+      <if test="arrTerminal != null">
+        #{arrTerminal,jdbcType=CHAR},
+      </if>
+      <if test="departTime != null">
+        #{departTime,jdbcType=VARCHAR},
+      </if>
+      <if test="arriveTime != null">
+        #{arriveTime,jdbcType=VARCHAR},
+      </if>
+      <if test="onTimeRate != null">
+        #{onTimeRate,jdbcType=VARCHAR},
+      </if>
+      <if test="isMiddleStop != null">
+        #{isMiddleStop,jdbcType=TINYINT},
+      </if>
+      <if test="middleCity != null">
+        #{middleCity,jdbcType=VARCHAR},
+      </if>
+      <if test="middleCityCode != null">
+        #{middleCityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="middleAirport != null">
+        #{middleAirport,jdbcType=VARCHAR},
+      </if>
+      <if test="middleAirportCode != null">
+        #{middleAirportCode,jdbcType=CHAR},
+      </if>
+      <if test="middleArriveTime != null">
+        #{middleArriveTime,jdbcType=VARCHAR},
+      </if>
+      <if test="middleDepartTime != null">
+        #{middleDepartTime,jdbcType=VARCHAR},
+      </if>
+      <if test="boardingGate != null">
+        #{boardingGate,jdbcType=VARCHAR},
+      </if>
+      <if test="dutyCounter != null">
+        #{dutyCounter,jdbcType=VARCHAR},
+      </if>
+      <if test="luggageGate != null">
+        #{luggageGate,jdbcType=VARCHAR},
+      </if>
+       <if test="departAirport != null" >
+        #{departAirport,jdbcType=VARCHAR},
+      </if>
+      <if test="departAirportCode != null" >
+        #{departAirportCode,jdbcType=CHAR},
+      </if>
+      <if test="arriveAirport != null" >
+        #{arriveAirport,jdbcType=VARCHAR},
+      </if>
+      <if test="arriveAirportCode != null" >
+        #{arriveAirportCode,jdbcType=CHAR},
+      </if>
+      
+      <if test="departPlace != null" >
+        #{departPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="departPlaceCode != null" >
+        #{departPlaceCode,jdbcType=CHAR},
+      </if>
+      <if test="destPlace != null" >
+        #{destPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="destPlaceCode != null" >
+        #{destPlaceCode,jdbcType=CHAR},
+      </if>
+      <if test="flyTime != null" >
+        #{flyTime,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateNotNull" parameterType="com.apin.base.bean.AirLineFlight">
+    update air_line_flight
+    <set>
+      <if test="airLineId != null">
+        air_line_id = #{airLineId,jdbcType=INTEGER},
+      </if>
+      <if test="airComp != null">
+        air_comp = #{airComp,jdbcType=VARCHAR},
+      </if>
+      <if test="airCompCode != null">
+        air_comp_code = #{airCompCode,jdbcType=CHAR},
+      </if>
+      <if test="flightNo != null">
+        flight_no = #{flightNo,jdbcType=VARCHAR},
+      </if>
+      <if test="depTerminal != null">
+        dep_terminal = #{depTerminal,jdbcType=CHAR},
+      </if>
+      <if test="arrTerminal != null">
+        arr_terminal = #{arrTerminal,jdbcType=CHAR},
+      </if>
+      <if test="departTime != null">
+        depart_time = #{departTime,jdbcType=VARCHAR},
+      </if>
+      <if test="arriveTime != null">
+        arrive_time = #{arriveTime,jdbcType=VARCHAR},
+      </if>
+      <if test="onTimeRate != null">
+        on_time_rate = #{onTimeRate,jdbcType=VARCHAR},
+      </if>
+      <if test="isMiddleStop != null">
+        is_middle_stop = #{isMiddleStop,jdbcType=TINYINT},
+      </if>
+      <if test="middleCity != null">
+        middle_city = #{middleCity,jdbcType=VARCHAR},
+      </if>
+      <if test="middleCityCode != null">
+        middle_city_code = #{middleCityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="middleAirport != null">
+        middle_airport = #{middleAirport,jdbcType=VARCHAR},
+      </if>
+      <if test="middleAirportCode != null">
+        middle_airport_code = #{middleAirportCode,jdbcType=CHAR},
+      </if>
+      <if test="middleArriveTime != null">
+        middle_arrive_time = #{middleArriveTime,jdbcType=VARCHAR},
+      </if>
+      <if test="middleDepartTime != null">
+        middle_depart_time = #{middleDepartTime,jdbcType=VARCHAR},
+      </if>
+      <if test="boardingGate != null">
+        boarding_gate = #{boardingGate,jdbcType=VARCHAR},
+      </if>
+      <if test="dutyCounter != null">
+        duty_counter = #{dutyCounter,jdbcType=VARCHAR},
+      </if>
+      <if test="luggageGate != null">
+        luggage_gate = #{luggageGate,jdbcType=VARCHAR},
+      </if>
+      <if test="departAirport != null" >
+        depart_airport = #{departAirport,jdbcType=VARCHAR},
+      </if>
+      <if test="departAirportCode != null" >
+        depart_airport_code = #{departAirportCode,jdbcType=CHAR},
+      </if>
+      <if test="arriveAirport != null" >
+        arrive_airport = #{arriveAirport,jdbcType=VARCHAR},
+      </if>
+      <if test="arriveAirportCode != null" >
+        arrive_airport_code = #{arriveAirportCode,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+ 
+</mapper>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.base.dao.ApplicationMapper">
+    <resultMap id="applicationResultMap" type="com.apin.base.bean.ApinApplication">
+        <id column="id" property="id"/>
+        <result column="application_type" property="applicationType"/>
+        <result column="application_name" property="applicationName"/>
+        <result column="application_secret" property="applicationSecret"/>
+    </resultMap>
+
+    <select id="selectApplicationById" resultMap="applicationResultMap" parameterType="String">
+        select * from apin_application where id=#{id}
+    </select>
+
+</mapper>

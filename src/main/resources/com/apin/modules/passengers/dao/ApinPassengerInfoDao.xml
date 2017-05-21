@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.modules.passengers.dao.ApinPassengerInfoDao" >
+  <resultMap id="result" type="com.apin.modules.passengers.bean.ApinPassengerInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="order_no" property="orderNo" jdbcType="BIGINT" />
+    <result column="passenger_id_card_type" property="passengerIdCardType" jdbcType="TINYINT" />
+    <result column="passenger_id_card_no" property="passengerIdCardNo" jdbcType="VARCHAR" />
+    <result column="passenger_name" property="passengerName" jdbcType="VARCHAR" />
+    <result column="passenger_name_pinyin" property="passengerNamePinyin" jdbcType="VARCHAR" />
+    <result column="passenger_type" property="passengerType" jdbcType="TINYINT" />
+    <result column="passenger_phone" property="passengerPhone" jdbcType="VARCHAR" />
+    <result column="passenger_nation" property="passengerNation" jdbcType="VARCHAR" />
+    <result column="passenger_gender" property="passengerGender" jdbcType="TINYINT" />
+    <result column="passenger_birthday" property="passengerBirthday" jdbcType="VARCHAR" />
+    <result column="passenger_nation_code" property="passengerNationCode" jdbcType="VARCHAR" />
+    <result column="passenger_first_name" property="passengerFirstName" jdbcType="VARCHAR" />
+    <result column="passenger_second_name" property="passengerSecondName" jdbcType="VARCHAR" />
+    <result column="card_expire_date" property="cardExpireDate" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="create_time" jdbcType="TIMESTAMP" />
+    <result column="issueCountry" property="issue_country" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="base_info" >
+    id, order_no, passenger_id_card_type, passenger_id_card_no, passenger_name, passenger_name_pinyin, 
+    passenger_nation, passenger_gender, passenger_birthday, passenger_nation_code, passenger_first_name, 
+    passenger_second_name, card_expire_date,create_time,issue_country
+  </sql>
+  	<select id="getListMapByOrderNo" resultType="map" parameterType="long">
+  		SELECT
+  		  id AS passengerId,
+  		  passenger_name AS passengerName,
+  		  passenger_type AS passengerType,
+  		  passenger_gender AS passengerGender,
+  		  passenger_birthday AS passengerBirthday,
+  		  passenger_id_card_type AS passengerIdCardType,
+  		  passenger_id_card_no as passengerIdCardNo,
+  		  passenger_nation AS passengerNation,
+  		  issue_country AS issueCountry,
+  		  passenger_first_name AS firstName,
+  		  passenger_second_name AS secondName,
+  		  DATE_FORMAT(card_expire_date,'%Y-%m-%d') AS cardExpireDate
+  	    from
+  	      apin_passenger_info
+  	    where
+  	      order_no = #{orderNo}
+  	</select>
+</mapper>
